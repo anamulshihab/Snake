@@ -1,3 +1,7 @@
+'''
+    Snake Game  @Author Shihab
+'''
+
 import curses
 from curses import KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP
 from random import randint
@@ -40,35 +44,24 @@ class Snake(object):
     def score(self):
         return 'Score : {}'.format(self.hit_score)
 
-
-    
     def add_body(self, body_list):
         self.body_list.extend(body_list)
 
-    # Eat food fucntion, functionality for snake eating food
     def eat_food(self, food):
-        
         food.reset()
-        
         body = Body(self.last_head_coor[0], self.last_head_coor[1])
-        
         self.body_list.insert(-1, body)
-        # update game score
         self.hit_score += 1
-        
         if self.hit_score % 3 == 0:
             self.timeout -= 5
             self.window.timeout(self.timeout)
 
-    
     @property
-    def collided(self): #  if snake head hits body part end game
+    def collided(self):
         return any([body.coor == self.head.coor
                     for body in self.body_list[:-1]])
 
-    # Updating function for animation
     def update(self):
-       
         last_body = self.body_list.pop(0)
         last_body.x = self.body_list[-1].x
         last_body.y = self.body_list[-1].y
@@ -76,43 +69,37 @@ class Snake(object):
         self.last_head_coor = (self.head.x, self.head.y)
         self.direction_map[self.direction]()
 
-    # change direction function
     def change_direction(self, direction):
-            if direction != Snake.REV_DIR_MAP[self.direction]:
+        if direction != Snake.REV_DIR_MAP[self.direction]:
             self.direction = direction
-    
+
     def render(self):
         for body in self.body_list:
-            
             self.window.addstr(body.y, body.x, body.char)
 
-       @property
-    #  the snake head
+    @property
     def head(self):
-        
         return self.body_list[-1]
 
-    # snake head initial coordinate
     @property
     def coor(self):
         return self.head.x, self.head.y
 
-    # move up function
     def move_up(self):
         self.head.y -= 1
         if self.head.y < 1:
             self.head.y = MAX_Y
-    # move down
+
     def move_down(self):
         self.head.y += 1
         if self.head.y > MAX_Y:
             self.head.y = 1
-    # move left
+
     def move_left(self):
         self.head.x -= 1
         if self.head.x < 1:
             self.head.x = MAX_X
-    # move rigth
+
     def move_right(self):
         self.head.x += 1
         if self.head.x > MAX_X:
@@ -162,8 +149,33 @@ if __name__ == '__main__':
         window.border(0)
         snake.render()
         food.render()
+
         window.addstr(0, 5, snake.score)
         event = window.getch()
+
+        
+       
+        if event == 27:
+            break
+
+        # this allows us to move the snakes direction. if saved and ran here, snake can change direction, but cannot eat food
+        if event in [KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]:
+            snake.change_direction(event)
+
+        # this allows the snake to eat the food
+        if snake.head.x == food.x and snake.head.y == food.y:
+            snake.eat_food(food)
+
+         
+        if event == 32:
+            key = -1
+            while key != 32:
+                key = window.getch()
+
+                snake.update()
+        
+        if snake.collided:
+            break
 
 
     curses.endwin()
