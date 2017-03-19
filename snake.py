@@ -1,5 +1,6 @@
 '''
-    Snake Game  @Author Shihab
+    @SnakeGame	
+    @Author Shihab
 '''
 
 import curses
@@ -29,7 +30,7 @@ class Snake(object):
         for i in range(SNAKE_LENGTH, 0, -1):
             self.body_list.append(Body(x - i, y))
 
-        self.body_list.append(Body(x, y, '0'))
+        self.body_list.append(Body(x, y, 'O'))
         self.window = window
         self.direction = KEY_RIGHT
         self.last_head_coor = (x, y)
@@ -106,7 +107,7 @@ class Snake(object):
             self.head.x = 1
 
 class Body(object):
-    def __init__(self, x, y, char='='):
+    def __init__(self, x, y, char='*'):
         self.x = x
         self.y = y
         self.char = char
@@ -153,27 +154,21 @@ if __name__ == '__main__':
         window.addstr(0, 5, snake.score)
         event = window.getch()
 
-        
-       
         if event == 27:
             break
 
-        # this allows us to move the snakes direction. if saved and ran here, snake can change direction, but cannot eat food
         if event in [KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]:
             snake.change_direction(event)
 
-        # this allows the snake to eat the food
         if snake.head.x == food.x and snake.head.y == food.y:
             snake.eat_food(food)
 
-         
         if event == 32:
             key = -1
             while key != 32:
                 key = window.getch()
 
-                snake.update()
-        
+        snake.update()
         if snake.collided:
             break
 
